@@ -1,0 +1,124 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f0;
+    margin: 0 auto; /* Center the body horizontally */
+    width: 50vw; /* Set to 50% of the viewport width */
+}
+
+.wrapper {
+    background-color: #f9f9f9;
+    padding: 20px; /* Add padding for better spacing inside the body */
+    box-sizing: border-box; /* Include padding in the total width */
+    text-align: left;
+}
+
+h1 {
+    background-color: #ab1e23;
+    color: #fff;
+    padding: 10px;
+    margin: 0; /* Remove default margin */
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    background-color: #fff;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: normal;
+    align-items: center;
+}
+
+label {
+    margin-right: 10px;
+}
+
+label.name {
+    font-weight: bold;
+}
+
+input,
+button {
+    margin-right: 10px;
+}
+
+input#newOptionInput {
+    padding: 9px;
+    border: 1px solid #eee;
+}
+
+button {
+    padding: 8px;
+    cursor: pointer;
+    color: #fff;
+    background-color: #58b61c;
+    border: 1px solid #459a3b;
+}
+
+#submitBtn:disabled, #addOptionButton:disabled {
+    background-color: #cccccc;
+    color: #666666;           
+    cursor: not-allowed;
+    border-color: #bbbbbb;
+}
+
+form {
+    margin-top: 20px;
+}
+
+div.rating-option {
+    background-color: #fff;
+    margin: 9px 0;
+    padding: 10px 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+div.rating-option div {
+    display: inline-block;
+}
+
+div.ratings-result {
+    padding: 5px 0px;
+}
+
+div.ratings-result h2{
+    margin-bottom: 0;
+}
+
+#ratingForm div.options-list {
+    padding: 10px 0px 0px;
+}
+
+#ratingForm h2 {
+    margin: 0;
+}
+
+#ratingForm label {
+    width: 125px;
+    display: inline-block;
+}
+
+h2 {
+    color: #ab1e23;
+}
+
+#totalRatings li {
+    background-color: #f0f0f0;
+}
+
+#totalRatings li:hover {
+    background-color: #e0e0e0;
+}
+
+#rating-options-wrapper .jq-ry-normal-group svg {
+    fill: none;
+    stroke: grey;
+    stroke-width: 20;
+}

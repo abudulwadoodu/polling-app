@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Name Suggestions</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.4/jquery.rateyo.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.4/jquery.rateyo.min.js"></script>
+</head>
+
+<body>
+    <div class="wrapper">
+        <h1>Team Name Suggestions</h1>
+        <p>
+            Suggest team names for our aala events.<br>
+            Rate listed team names or add your own.
+        </p>
+
+        <label class="name" for="newOptionInput">New Name:</label>
+        <input type="text" id="newOptionInput">
+        <button id="addOptionButton" disabled>Add New Name</button>
+
+        <form id="ratingForm">
+            <div id="rating-options-wrapper" class="options-list">
+                <h2>Options</h2>
+                <!-- Ratings for each option will be dynamically added here -->
+            </div>
+            <button id="submitBtn" type="submit" disabled>Submit Ratings</button>
+        </form>
+
+        <div class="ratings-result">
+            <h2>Ratings</h2>
+            <ul id="totalRatings"></ul>
+        </div>
+    </div>
+
+    <!-- Load JavaScript files -->
+    <script src="scripts/state.js"></script>
+    <script src="scripts/pollOptions.js"></script>
+    <script src="scripts/ratings.js"></script>
+    <script src="scripts/utils.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+
+</html>
