@@ -13,6 +13,13 @@ const PollOptions = {
     rebindRatingForm: function (data) {
       const ratingOptionsWrapper = document.querySelector("#rating-options-wrapper");
       ratingOptionsWrapper.innerHTML = "<h2>Options</h2>";
+
+      if(!data.options.length) {
+        ratingOptionsWrapper.innerHTML += "<p>No options have been added yet.</p>";
+        $('#submitBtn').hide();
+      } else if($('#submitBtn').is(':hidden')) {
+        $('#submitBtn').show();
+      }
   
       data.options.forEach((option) => {
         const ratingDiv = document.createElement("div");

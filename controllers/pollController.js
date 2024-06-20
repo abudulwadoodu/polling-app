@@ -2,12 +2,7 @@
 const pollService = require("../services/pollService");
 
 // default options
-let pollOptions = [
-  "Lulu Barbeque Nation",
-  "Karthika Park",
-  "O by Tamara",
-  "Imperial Kitchen",
-];
+let pollOptions = [];
 
 exports.addOption = (req, res) => {
   const newOption = req.body.newOption;
