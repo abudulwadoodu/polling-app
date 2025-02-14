@@ -18,8 +18,12 @@ document.addEventListener("DOMContentLoaded", function () {
   
     function addNewOption() {
       if (isValidNewOption()) {
-        const newOption = input.value.trim();
+        let newOption = input.value.trim();
+        newOption = newOption.charAt(0).toUpperCase() + newOption.slice(1);
         PollOptions.add(newOption);
+        // reset input box after submit
+        input.value = "";
+        checkInput();
       } else {
         alert("Please provide a non-blank new name.");
       }

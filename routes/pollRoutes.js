@@ -10,6 +10,6 @@ router.get("/", (req, res) => {
 router.post("/addOption", pollController.addOption);
 router.post("/rateOptions", pollController.rateOptions);
 router.get("/getOptions", pollController.getOptions);
-router.get("/getTotalRatings", pollController.getTotalRatings);
+router.get("/getAllRatings", pollController.getAllRatings);
 
 module.exports = router;

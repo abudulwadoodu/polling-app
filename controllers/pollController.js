@@ -1,10 +1,8 @@
 // controllers/pollController.js
 const pollService = require("../services/pollService");
 
-// default options
-let pollOptions = [];
-
-exports.addOption = (req, res) => {
+// Add new option
+exports.addOption = async (req, res) => {
   const newOption = req.body.newOption;
 
   if (!newOption || newOption.trim() === "") {
@@ -12,28 +10,39 @@ exports.addOption = (req, res) => {
     return;
   }
 
-  pollOptions.push(newOption);
-  pollService.initializeRatings(newOption);
-
-  res.json({ success: true, message: "Option added successfully" });
+  try {
+    await pollService.initializeRatings(newOption);
+    res.json({ success: true, message: "Option added successfully" });
+  } catch (error) {
+    res.json({ success: false, message: "Error adding option" });
+  }
 };
 
+// Rate available options
 exports.rateOptions = async (req, res) => {
   try {
-    await pollService.saveRatings(req.body.ratings, pollOptions);
+    const existingOptions = await pollService.getAllOptions();
+    await pollService.saveRatings(req.body.ratings, existingOptions);
     res.json({ success: true, message: "Ratings submitted successfully" });
   } catch (error) {
     res.json({ success: false, message: "Error saving ratings" });
   }
 };
 
-exports.getOptions = (req, res) => {
-  res.json({ options: pollOptions });
+// Existing options to rate
+exports.getOptions = async (req, res) => {
+  try {
+    const pollOptions = await pollService.getAllOptions();
+    res.json({ options: pollOptions });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
 
-exports.getTotalRatings = async (req, res) => {
+// Summary of submitted ratings
+exports.getAllRatings = async (req, res) => {
   try {
-    const totalRatings = await pollService.getTotalRatings();
+    const totalRatings = await pollService.getAllRatings();
     res.json({ totalRatings: totalRatings });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });

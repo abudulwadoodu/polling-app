@@ -41,7 +41,7 @@ const Ratings = {
     },
   
     refreshTotal: function () {
-      fetch("/getTotalRatings")
+      fetch("/getAllRatings")
         .then((response) => response.json())
         .then((data) => {
           this.rebindTotalRatings(data);

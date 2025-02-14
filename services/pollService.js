@@ -1,65 +1,40 @@
 // services/pollService.js
-const fs = require("fs/promises");
+const Option = require('../models/option');
 
-const ratingsFile = "ratings.json";
-
-exports.initializeRatings = async (option) => {
-  let ratingsData = await this.getRatingsFromFile();
-  ratingsData[option] = { totalRatings: 0, numberOfRatings: 0 };
-  await this.saveRatingsToFile(ratingsData);
+exports.initializeRatings = async (optionName) => {
+  const option = new Option({ name: optionName });
+  await option.save();
 };
 
 exports.saveRatings = async (ratings, pollOptions) => {
-  let ratingsData = await this.getRatingsFromFile();
-
-  for (const option in ratings) {
-    if (pollOptions.includes(option) && !isNaN(ratings[option])) {
-      let currentRating = parseInt(ratings[option]);
+  for (const optionName in ratings) {
+    if (pollOptions.includes(optionName) && !isNaN(ratings[optionName])) {
+      const currentRating = parseInt(ratings[optionName]);
       if (currentRating) {
-        if (ratingsData[option]) {
-          ratingsData[option].totalRatings += currentRating;
-          ratingsData[option].numberOfRatings += 1;
-        } else {
-          ratingsData[option] = {
-            totalRatings: currentRating,
-            numberOfRatings: 1,
-          };
+        const option = await Option.findOne({ name: optionName });
+        if (option) {
+          option.totalRatings += currentRating;
+          option.numberOfRatings += 1;
+          await option.save();
         }
       }
     }
   }
-  await this.saveRatingsToFile(ratingsData);
 };
 
-exports.getTotalRatings = async () => {
-  let ratingsData = await this.getRatingsFromFile();
+exports.getAllOptions = async () => {
+  const options = await Option.find().select('name -_id');
+  return options.map(option => option.name);
+};
+
+exports.getAllRatings = async () => {
+  const options = await Option.find();
   const totalRatings = {};
 
-  for (const option in ratingsData) {
-    const total = ratingsData[option].totalRatings || 0;
-    const count = ratingsData[option].numberOfRatings || 0;
-    const avgRating = count === 0 ? 0 : Math.round((total / count) * 10) / 10;
-    totalRatings[option] = { total: total, count: count, avgRating: avgRating };
-  }
+  options.forEach(option => {
+    const avgRating = option.numberOfRatings === 0 ? 0 : Math.round((option.totalRatings / option.numberOfRatings) * 10) / 10;
+    totalRatings[option.name] = { total: option.totalRatings, count: option.numberOfRatings, avgRating: avgRating };
+  });
 
   return totalRatings;
-};
-
-exports.getRatingsFromFile = async () => {
-  try {
-    const data = await fs.readFile(ratingsFile, "utf-8");
-    return data ? JSON.parse(data) : {};
-  } catch (error) {
-    console.error("Error reading ratings from file:", error);
-    return {};
-  }
-};
-
-exports.saveRatingsToFile = async (ratingData) => {
-  try {
-    await fs.writeFile(ratingsFile, JSON.stringify(ratingData, null, 2), "utf-8");
-  } catch (error) {
-    console.error("Error saving ratings to file:", error);
-    throw error;
-  }
 };

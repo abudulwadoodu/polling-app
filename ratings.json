@@ -1,0 +1,22 @@
+{
+  "Avengers": {
+    "totalRatings": 3,
+    "numberOfRatings": 2
+  },
+  "Swat kats": {
+    "totalRatings": 11,
+    "numberOfRatings": 3
+  },
+  "Thunder blues": {
+    "totalRatings": 2,
+    "numberOfRatings": 1
+  },
+  "Test": {
+    "totalRatings": 2,
+    "numberOfRatings": 1
+  },
+  "Test2": {
+    "totalRatings": 0,
+    "numberOfRatings": 0
+  }
+}
