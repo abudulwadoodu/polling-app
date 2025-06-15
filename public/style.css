@@ -62,10 +62,10 @@ button {
 }
 
 #submitBtn:disabled, #addOptionButton:disabled {
-    background-color: #cccccc;
-    color: #666666;           
+    background-color: #f0f0f0;
+    color: #888;           
     cursor: not-allowed;
-    border-color: #bbbbbb;
+    border-color: #f0f0f0;
 }
 
 form {
@@ -109,11 +109,11 @@ h2 {
     color: #ab1e23;
 }
 
-#totalRatings li {
+#ratings-section li {
     background-color: #f0f0f0;
 }
 
-#totalRatings li:hover {
+#ratings-section li:hover {
     background-color: #e0e0e0;
 }
 
@@ -121,4 +121,9 @@ h2 {
     fill: none;
     stroke: grey;
     stroke-width: 20;
+}
+
+.modal-field-label {
+    display: block;
+    margin-bottom: 18px;
 }

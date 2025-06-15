@@ -1,4 +1,6 @@
 const Ratings = {
+    pollId: null, // set this from main.js
+
     initializeRateYo: function (ratingContainer, option) {
       $(ratingContainer).rateYo({
         rating: 0,
@@ -16,57 +18,55 @@ const Ratings = {
         },
       });
     },
-  
-    submit: function (ratings) {
-      fetch("/rateOptions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ratings: ratings }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            alert("Ratings submitted successfully!");
-            this.refreshTotal();
-            Main.clearRatingsFormData();
-          } else {
-            alert(data.message);
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
+
+    submit: async function (ratings) {
+      if (!this.pollId) return;
+      await window.api.rateOptionsByPollId(this.pollId, { ratings });
+      Main.showToast("Ratings submitted successfully!");
+      this.refreshTotal();
+      Main.clearRatingsFormData();
     },
-  
-    refreshTotal: function () {
-      fetch("/getAllRatings")
-        .then((response) => response.json())
-        .then((data) => {
-          this.rebindTotalRatings(data);
-        })
-        .catch((error) => {
-          console.error("Error fetching total ratings:", error);
-        });
+
+    refreshTotal: async function (sortBy = "name") {   
+      const ratingsList = document.getElementById("ratings-section");
+      ratingsList.innerHTML = ""; // Clear previous
+      const ratingsRes = await window.api.getRatingsByPollId(this.pollId, sortBy);
+      if (!ratingsRes.ratings || !Object.keys(ratingsRes.ratings).length) {
+          ratingsList.innerHTML = `<li style="color:#888;">No ratings available.</li>`;
+      } else {
+        this.rebindTotalRatings(ratingsRes.ratings);
+      }   
     },
-  
-    rebindTotalRatings: function (data) {
-      const totalRatingsList = document.getElementById("totalRatings");
-      totalRatingsList.innerHTML = !Object.keys(data.totalRatings).length ? "No options have been rated yet." : "";
-  
-      for (const option in data.totalRatings) {
+
+    rebindTotalRatings: function (ratings) {
+      const ratingsList = document.getElementById("ratings-section");
+      ratingsList.innerHTML = !Object.keys(ratings).length ? "No options have been rated yet." : "";
+    
+      // Find the option(s) with the highest avgRating
+      let maxRating = -1;
+      for (const option in ratings) {
+        const avgRating = ratings[option].avgRating || 0;
+        if (avgRating > maxRating) maxRating = avgRating;
+      }
+    
+      for (const option in ratings) {
         const listItem = document.createElement("li");
-        const totalRating = data.totalRatings[option].total || 0;
-        const ratingCount = data.totalRatings[option].count || 0;
-        const avgRating = data.totalRatings[option].avgRating || 0;
-  
+        const ratingCount = ratings[option].count || 0;
+        const avgRating = ratings[option].avgRating || 0;
+    
         const filledStars = Math.max(0, Math.min(5, Math.round(avgRating)));
         const starRating = "⭐".repeat(filledStars) + "☆".repeat(5 - filledStars);
-  
+    
         listItem.innerHTML = `<span style="width:125px; padding:10px">${option}:</span> <span style="width:20px; padding:10px"><strong>${avgRating}</strong></span> <span style="width:100px; padding:5px">${starRating}</span> <span style="padding:5px">(${ratingCount})</span>`;
-        totalRatingsList.appendChild(listItem);
+    
+        // Highlight the row if it has the highest avgRating and at least one rating
+        if (avgRating === maxRating && ratingCount > 0 && maxRating > 0) {
+          listItem.style.background = "#e6ffe6";
+          listItem.style.fontWeight = "bold";
+        }
+    
+        ratingsList.appendChild(listItem);
       }
     }
-  };
-  
+};
+window.Ratings = Ratings;

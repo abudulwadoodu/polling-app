@@ -1,15 +1,28 @@
-// routes/pollRoutes.js
 const express = require("express");
+const path = require("path");
 const router = express.Router();
 const pollController = require("../controllers/pollController");
 
+// Serve frontend
 router.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/index.html"));
 });
 
-router.post("/addOption", pollController.addOption);
-router.post("/rateOptions", pollController.rateOptions);
-router.get("/getOptions", pollController.getOptions);
-router.get("/getAllRatings", pollController.getAllRatings);
+// Poll CRUD
+router.get("/api/polls", pollController.getAllPolls);
+router.post("/api/createPoll", pollController.createPoll);
+router.get("/api/poll/:id", pollController.getPollById);
+router.put("/api/poll/:id", pollController.updatePoll);
+router.delete("/api/poll/:id", pollController.deletePoll);
+
+// Option CRUD (poll-specific)
+router.get("/api/poll/:id/options", pollController.getOptionsByPollId);
+router.post("/api/poll/:id/option", pollController.addOptionToPoll);
+router.put("/api/option/:optionId", pollController.updateOption);
+router.delete("/api/option/:optionId", pollController.deleteOption);
+
+// Ratings (poll-specific)
+router.post("/api/poll/:id/rateOptions", pollController.rateOptions);
+router.get("/api/poll/:id/getAllRatings", pollController.getAllRatings);
 
 module.exports = router;
