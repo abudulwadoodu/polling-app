@@ -4,7 +4,7 @@ const Rating = require('../models/rating');
 
 // Get all polls
 exports.getAllPolls = async () => {
-  return PollMeta.find();
+  return PollMeta.find({ status: "active" });
 };
 
 // Get poll by ID
@@ -47,7 +47,7 @@ exports.getOptionsByPollId = async (pollId, sortBy = "name") => {
   const sortObj = sortBy === "created_at"
     ? { created_at: -1, name: 1 }
     : { name: 1 };
-  return Option.find({ poll: pollId }).sort(sortObj);
+  return Option.find({ poll: pollId, status: "active" }).sort(sortObj);
 };
 
 // Add option to poll
@@ -95,7 +95,7 @@ exports.getAllRatings = async (pollId, sortBy = "name") => {
     ? { created_at: -1, name: 1 }
     : { name: 1 };
   // Fetch all options with created_at and name, sorted accordingly
-  const options = await Option.find({ poll: pollId }).sort(sortObj);
+  const options = await Option.find({ poll: pollId, status: "active" }).sort(sortObj);
   const totalRatings = {};
   options.forEach(option => {
     const avgRating = option.numberOfRatings === 0 ? 0 : Math.round((option.totalRatings / option.numberOfRatings) * 10) / 10;

@@ -1,4 +1,6 @@
 const pollService = require("../services/pollService");
+const PollReport = require("../models/pollReport"); 
+const OptionReport = require("../models/optionReport"); 
 
 // Get all polls
 exports.getAllPolls = async (req, res) => {
@@ -55,6 +57,22 @@ exports.deletePoll = async (req, res) => {
   }
 };
 
+exports.reportPoll = async (req, res) => {
+  try {
+    await PollReport.create({
+      poll: req.params.id,
+      user_email: req.body.user_email,
+      reason: req.body.reason || "",
+      reported_at: new Date()
+    });
+    // Update poll status to "flagged"
+    await pollService.updatePoll(req.params.id, { status: "flagged" });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 // Get options for a poll
 exports.getOptionsByPollId = async (req, res) => {
   try {
@@ -82,7 +100,7 @@ exports.getOptionsByPollId = async (req, res) => {
 // Add option to poll
 exports.addOptionToPoll = async (req, res) => {
   try {
-    const result = await pollService.addOptionToPoll(req.params.id, req.body.newOption, req.body.author_email);
+    const result = await pollService.addOptionToPoll(req.params.id, req.body.newOption, req.body.user_email);
     res.json(result);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -115,6 +133,23 @@ exports.rateOptions = async (req, res) => {
     const user_email = req.body.user_email;
     if (!user_email) return res.status(400).json({ error: "Email required" });
     await pollService.saveRatings(req.params.id, req.body.ratings, user_email);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.reportOption = async (req, res) => {
+  try {
+    await OptionReport.create({
+      option: req.params.optionId,
+      user_email: req.body.user_email,
+      reason: req.body.reason || "", 
+      reported_at: new Date()
+    });
+    // Update option status to "flagged"
+    const Option = require("../models/option");
+    await Option.findByIdAndUpdate(req.params.optionId, { status: "flagged" });
     res.json({ success: true });
   } catch (error) {
     res.status(400).json({ error: error.message });

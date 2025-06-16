@@ -14,12 +14,14 @@ router.post("/api/createPoll", pollController.createPoll);
 router.get("/api/poll/:id", pollController.getPollById);
 router.put("/api/poll/:id", pollController.updatePoll);
 router.delete("/api/poll/:id", pollController.deletePoll);
+router.post("/api/poll/:id/report", pollController.reportPoll);
 
 // Option CRUD (poll-specific)
 router.get("/api/poll/:id/options", pollController.getOptionsByPollId);
 router.post("/api/poll/:id/option", pollController.addOptionToPoll);
 router.put("/api/option/:optionId", pollController.updateOption);
 router.delete("/api/option/:optionId", pollController.deleteOption);
+router.post("/api/option/:optionId/report", pollController.reportOption);
 
 // Ratings (poll-specific)
 router.post("/api/poll/:id/rateOptions", pollController.rateOptions);

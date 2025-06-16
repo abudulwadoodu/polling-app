@@ -49,6 +49,13 @@ window.api = {
   async deletePoll(id) {
     return apiFetch(`/poll/${id}`, { method: 'DELETE' });
   },
+  async reportPoll(pollId, reason = "") {
+    return apiFetch(`/poll/${pollId}/report`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason })
+    });
+  },
   async addOptionToPoll(pollId, data) {
     return apiFetch(`/poll/${pollId}/option`, {
       method: 'POST',
@@ -75,6 +82,13 @@ window.api = {
   },
   async deleteOption(optionId) {
     return apiFetch(`/option/${optionId}`, { method: 'DELETE' });
+  },
+  async reportOption(optionId, reason = "") {
+    return apiFetch(`/option/${optionId}/report`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason })
+    });
   },
   async getRatingsByPollId(pollId, sortBy = "name") {
     return apiFetch(`/poll/${pollId}/getAllRatings?sortBy=${sortBy}`);

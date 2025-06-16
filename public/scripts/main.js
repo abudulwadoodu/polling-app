@@ -59,10 +59,20 @@ document.addEventListener("DOMContentLoaded", function () {
                         <div style="min-width:120px; text-align:right;">
                             <button onclick="editPoll('${poll._id}')">Edit</button>
                             <button onclick="deletePoll('${poll._id}')">Delete</button>
+                            <button class="report-poll-btn" title="Report this poll" style="background:#fff; color:#ab1e23; border:none; font-size:1.2em; margin-left:8px;">🚩</button>
                         </div>
                     </div>
                 `;
                 li.style.marginBottom = "18px";
+                // Add report handler
+                li.querySelector('.report-poll-btn').onclick = async function () {
+                    let reason = prompt("Report this poll as inappropriate?\n(Optional) Please provide a reason:");
+                    if (reason !== null) {
+                        await window.api.reportPoll(poll._id, reason);
+                        Main.showToast("Thank you for your report!", "success");
+                        showPollList();
+                    }
+                };
                 list.appendChild(li);
             });
         }

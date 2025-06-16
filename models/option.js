@@ -6,7 +6,8 @@ const OptionSchema = new mongoose.Schema({
   numberOfRatings: { type: Number, default: 0 },
   author_email: { type: String, required: true },
   created_at: { type: Date, default: Date.now },
-  poll: { type: mongoose.Schema.Types.ObjectId, ref: 'PollMeta', required: true }
+  poll: { type: mongoose.Schema.Types.ObjectId, ref: 'PollMeta', required: true },
+  status: { type: String, default: "active" }
 });
 
 // Ensure option name is unique within a poll

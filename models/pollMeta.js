@@ -7,7 +7,8 @@ const PollMetaSchema = new mongoose.Schema({
   shortlisted_option: { type: String, default: "" },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
-  closed_at: { type: Date, default: null }
+  closed_at: { type: Date, default: null },
+  status: { type: String, default: "active" }
 });
 
 // Automatically update `updated_at` on save

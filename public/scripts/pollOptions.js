@@ -34,7 +34,7 @@ const PollOptions = {
         const ratingDiv = document.createElement("div");
         ratingDiv.className = "rating-option";
         ratingDiv.innerHTML = `<label>${option.name}: </label>`;
-    
+
         if (option.ratedByUser) {
           // Show as already rated/disabled
           ratingDiv.innerHTML += `<span style="color:#888; margin-left:8px;">(Already rated)</span>`;
@@ -49,6 +49,28 @@ const PollOptions = {
         }
     
         ratingOptionsWrapper.appendChild(ratingDiv);
+    
+        // Add flag icon
+        const flagBtn = document.createElement("button");
+        flagBtn.type = "button";
+        flagBtn.innerHTML = "🚩";
+        flagBtn.title = "Report this option";
+        flagBtn.style.marginLeft = "8px";
+        flagBtn.style.backgroundColor = "#fff";
+        flagBtn.style.borderColor = "#fff";
+        flagBtn.onclick = async function () {
+          let reason = prompt("Report this option as inappropriate?\n(Optional) Please provide a reason:");
+          if (reason !== null) { // null means user cancelled
+            await window.api.reportOption(option._id, reason);
+            Main.showToast("Thank you for your report!", "success");
+            // Refresh options UI after reporting (option may be hidden in backend)
+            PollOptions.refresh();
+            if (window.Ratings && typeof Ratings.refreshTotal === "function") {
+              Ratings.refreshTotal();
+            }
+          }
+        };
+        ratingDiv.appendChild(flagBtn);
       });
     },
 
