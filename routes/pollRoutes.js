@@ -27,4 +27,12 @@ router.post("/api/option/:optionId/report", pollController.reportOption);
 router.post("/api/poll/:id/rateOptions", pollController.rateOptions);
 router.get("/api/poll/:id/getAllRatings", pollController.getAllRatings);
 
+// Admin: List reported polls/options and handle actions
+router.get("/api/reportedPolls", pollController.getReportedPolls);
+router.get("/api/reportedOptions", pollController.getReportedOptions);
+router.post("/api/poll/:id/markNotIssue", pollController.markPollNotIssue);
+router.post("/api/poll/:id/markDeleted", pollController.markPollDeleted);
+router.post("/api/option/:optionId/markNotIssue", pollController.markOptionNotIssue);
+router.post("/api/option/:optionId/markDeleted", pollController.markOptionDeleted);
+
 module.exports = router;

@@ -166,3 +166,78 @@ exports.getAllRatings = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// List reported polls
+exports.getReportedPolls = async (req, res) => {
+  const PollReport = require("../models/pollReport");
+  const PollMeta = require("../models/pollMeta");
+  // Get latest report for each poll
+  const reports = await PollReport.aggregate([
+    { $sort: { created_at: -1 } },
+    { $group: { _id: "$poll", reason: { $first: "$reason" }, reportedBy: { $first: "$user_email" }, reportedAt: { $first: "$created_at" } } }
+  ]);
+  const pollIds = reports.map(r => r._id);
+  const polls = await PollMeta.find({ _id: { $in: pollIds } });
+  // Attach reason, reporter, and date to each poll
+  const pollsWithDetails = polls.map(p => {
+    const report = reports.find(r => r._id.equals(p._id));
+    return { ...p.toObject(), reason: report ? report.reason : "", reportedBy: report ? report.reportedBy : "", reportedAt: report ? report.reportedAt : "" };
+  });
+  res.json(pollsWithDetails);
+};
+
+// List reported options
+exports.getReportedOptions = async (req, res) => {
+  const OptionReport = require("../models/optionReport");
+  const Option = require("../models/option");
+  const PollMeta = require("../models/pollMeta");
+  const reports = await OptionReport.aggregate([
+    { $sort: { created_at: -1 } },
+    { $group: { _id: "$option", reason: { $first: "$reason" }, reportedBy: { $first: "$user_email" }, reportedAt: { $first: "$created_at" } } }
+  ]);
+  const optionIds = reports.map(r => r._id);
+  const options = await Option.find({ _id: { $in: optionIds } });
+  // Fetch poll titles for each option
+  const pollIdSet = new Set(options.map(o => o.poll.toString()));
+  const polls = await PollMeta.find({ _id: { $in: Array.from(pollIdSet) } });
+  const optionsWithDetails = options.map(o => {
+    const report = reports.find(r => r._id.equals(o._id));
+    const poll = polls.find(p => p._id.equals(o.poll));
+    return {
+      ...o.toObject(),
+      pollTitle: poll ? poll.title : "",
+      reason: report ? report.reason : "",
+      reportedBy: report ? report.reportedBy : "",
+      reportedAt: report ? report.reportedAt : ""
+    };
+  });
+  res.json(optionsWithDetails);
+};
+
+// Mark poll as not an issue
+exports.markPollNotIssue = async (req, res) => {
+  const PollMeta = require("../models/pollMeta");
+  await PollMeta.findByIdAndUpdate(req.params.id, { status: "active" });
+  res.json({ success: true });
+};
+
+// Mark poll as deleted
+exports.markPollDeleted = async (req, res) => {
+  const PollMeta = require("../models/pollMeta");
+  await PollMeta.findByIdAndUpdate(req.params.id, { status: "deleted" });
+  res.json({ success: true });
+};
+
+// Mark option as not an issue
+exports.markOptionNotIssue = async (req, res) => {
+  const Option = require("../models/option");
+  await Option.findByIdAndUpdate(req.params.optionId, { status: "active" });
+  res.json({ success: true });
+};
+
+// Mark option as deleted
+exports.markOptionDeleted = async (req, res) => {
+  const Option = require("../models/option");
+  await Option.findByIdAndUpdate(req.params.optionId, { status: "deleted" });
+  res.json({ success: true });
+};
