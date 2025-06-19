@@ -204,6 +204,8 @@ document.addEventListener("DOMContentLoaded", function () {
       if (window.PollOptions) PollOptions.refresh(sortSelect.value);
       // Ratings section
       if (window.Ratings) Ratings.refreshTotal(sortSelect.value);
+      // Comments
+      loadComments(pollId);
     }
   }
 
@@ -251,8 +253,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function showReportedPolls() {
     // Fetch and render reported polls
-    const pollsRes = await fetch("/api/reportedPolls");
-    const reportedPolls = await pollsRes.json();
+    const reportedPolls = await window.api.getReportedPolls();
     const pollsList = document.getElementById("reported-polls-list");
     if (!reportedPolls.length) {
       pollsList.innerHTML = "<li>No reported polls.</li>";
@@ -281,15 +282,13 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
         // Not an Issue
         li.querySelector(".not-issue-btn").onclick = async () => {
-          await fetch(`/api/poll/${poll._id}/markNotIssue`, { method: "POST" });
+          await window.api.markPollNotIssue(poll._id);
           li.remove();
         };
         // Delete
         li.querySelector(".delete-btn").onclick = async () => {
           if (confirm("Are you sure you want to delete this poll?")) {
-            await fetch(`/api/poll/${poll._id}/markDeleted`, {
-              method: "POST",
-            });
+            await window.api.deletePoll(poll._id);
             li.remove();
           }
         };
@@ -299,8 +298,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   async function showReportedOptions() {
     // Fetch and render reported options
-    const optionsRes = await fetch("/api/reportedOptions");
-    const reportedOptions = await optionsRes.json();
+    const reportedOptions = await window.api.getReportedOptions();
     const optionsList = document.getElementById("reported-options-list");
     if (!reportedOptions.length) {
       optionsList.innerHTML = "<li>No reported options.</li>";
@@ -332,17 +330,13 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
         // Not an Issue
         li.querySelector(".not-issue-btn").onclick = async () => {
-          await fetch(`/api/option/${option._id}/markNotIssue`, {
-            method: "POST",
-          });
+          await window.api.markOptionNotIssue(option._id);
           li.remove();
         };
         // Delete
         li.querySelector(".delete-btn").onclick = async () => {
           if (confirm("Are you sure you want to delete this option?")) {
-            await fetch(`/api/option/${option._id}/markDeleted`, {
-              method: "POST",
-            });
+            await window.api.deleteOption(option._id);
             li.remove();
           }
         };
@@ -480,6 +474,37 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+
+  async function loadComments(pollId) {
+    const comments = await window.api.getCommentsByPollId(pollId);
+    const commentsList = document.getElementById("comments-list");
+    commentsList.innerHTML = "";
+    if (!comments.length) {
+        commentsList.innerHTML = "<li>No comments yet.</li>";
+    } else {
+        comments.forEach(comment => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                <div>
+                    <div><strong>${comment.user_email || "Anonymous"}:</strong></div>
+                    <div style="margin: 4px 0 6px 0;">${comment.text}</div>
+                    <div style="color:#888; font-size:0.9em;">${new Date(comment.created_at).toLocaleString()}</div>
+                </div>
+            `;
+            commentsList.appendChild(li);
+        });
+    }
+  }
+
+  document.getElementById("add-comment-form").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const input = document.getElementById("comment-input");
+      const text = input.value.trim();
+      if (!text) return;
+      await window.api.addCommentToPoll(window.PollOptions.pollId, text);
+      input.value = "";
+      loadComments(window.PollOptions.pollId);
+  });
 
   router();
 });

@@ -26,6 +26,7 @@ async function apiFetch(path, options = {}) {
 }
 
 window.api = {
+  // Polls
   async getPolls() {
     return apiFetch('/polls');
   },
@@ -54,6 +55,22 @@ window.api = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ reason })
+    });
+  },
+  async markPollNotIssue(id) {
+    return apiFetch(`/poll/${id}/markNotIssue`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_email: getUserEmail() })
+    });
+  },
+
+  // Options
+  async markOptionNotIssue(optionId) {
+    return apiFetch(`/option/${optionId}/markNotIssue`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_email: getUserEmail() })
     });
   },
   async addOptionToPoll(pollId, data) {
@@ -93,4 +110,25 @@ window.api = {
   async getRatingsByPollId(pollId, sortBy = "name") {
     return apiFetch(`/poll/${pollId}/getAllRatings?sortBy=${sortBy}`);
   },
+
+  // Comments
+  async getCommentsByPollId(pollId) {
+    return apiFetch(`/poll/${pollId}/comments`);
+  },
+  async addCommentToPoll(pollId, text) {
+    return apiFetch(`/poll/${pollId}/comments`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+  },
+
+  // Reported
+  async getReportedPolls() {
+    return apiFetch("/reportedPolls");
+  },
+  async getReportedOptions() {
+    return apiFetch("/reportedOptions");
+  },
+
 };

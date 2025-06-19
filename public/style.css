@@ -84,7 +84,7 @@ div.rating-option div {
     display: inline-block;
 }
 
-div.ratings-result {
+div.ratings-result, div.comments-section {
     padding: 5px 0px;
 }
 
@@ -154,4 +154,8 @@ nav a.active {
     color: #1976d2;
     font-weight: bold;
     text-decoration: underline;
+}
+
+.comments-section button {
+    vertical-align: top;;
 }

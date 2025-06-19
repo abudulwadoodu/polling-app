@@ -37,17 +37,27 @@
                     <option value="created_at">Newest</option>
                 </select>
             </div>
+            <div class="ratings-result">
+                <h2>Ratings</h2>
+                <ul id="ratings-section"></ul>
+            </div>
             <form id="ratingForm">
                 <div id="rating-options-wrapper" class="options-list">
                     <h2>Options</h2>
                 </div>
                 <button id="submitBtn" type="submit" disabled>Submit Ratings</button>
             </form>
-            <div class="ratings-result">
-                <h2>Ratings</h2>
-                <ul id="ratings-section"></ul>
+
+            <div id="comments-section" class="comments-section">
+                <h2>Comments</h2>
+                <form id="add-comment-form" style="margin-top:10px;">
+                    <textarea id="comment-input" placeholder="Add a comment..." style="width:70%;" rows="3" required></textarea>
+                    <button type="submit">Add Comment</button>
+                </form>
+                <ul id="comments-list"></ul>
             </div>
         </div>
+
 
         <!-- Poll Creation Modal -->
         <div id="poll-setup-modal"

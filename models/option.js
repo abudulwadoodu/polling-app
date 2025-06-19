@@ -10,7 +10,4 @@ const OptionSchema = new mongoose.Schema({
   status: { type: String, default: "active" }
 });
 
-// Ensure option name is unique within a poll
-OptionSchema.index({ name: 1, poll: 1 }, { unique: true });
-
 module.exports = mongoose.model('Option', OptionSchema);

@@ -1,6 +1,7 @@
 const pollService = require("../services/pollService");
 const PollReport = require("../models/pollReport"); 
 const OptionReport = require("../models/optionReport"); 
+const Comment = require("../models/comment");
 
 // Get all polls
 exports.getAllPolls = async (req, res) => {
@@ -48,14 +49,14 @@ exports.updatePoll = async (req, res) => {
 };
 
 // Delete poll
-exports.deletePoll = async (req, res) => {
-  try {
-    await pollService.deletePoll(req.params.id);
-    res.json({ success: true });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
+// exports.deletePoll = async (req, res) => {
+//   try {
+//     await pollService.deletePoll(req.params.id);
+//     res.json({ success: true });
+//   } catch (error) {
+//     res.status(400).json({ error: error.message });
+//   }
+// };
 
 exports.reportPoll = async (req, res) => {
   try {
@@ -118,14 +119,14 @@ exports.updateOption = async (req, res) => {
 };
 
 // Delete option
-exports.deleteOption = async (req, res) => {
-  try {
-    await pollService.deleteOption(req.params.optionId);
-    res.json({ success: true });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
+// exports.deleteOption = async (req, res) => {
+//   try {
+//     await pollService.deleteOption(req.params.optionId);
+//     res.json({ success: true });
+//   } catch (error) {
+//     res.status(400).json({ error: error.message });
+//   }
+// };
 
 // Rate options for a poll
 exports.rateOptions = async (req, res) => {
@@ -177,7 +178,8 @@ exports.getReportedPolls = async (req, res) => {
     { $group: { _id: "$poll", reason: { $first: "$reason" }, reportedBy: { $first: "$user_email" }, reportedAt: { $first: "$created_at" } } }
   ]);
   const pollIds = reports.map(r => r._id);
-  const polls = await PollMeta.find({ _id: { $in: pollIds } });
+  // Exclude polls with status "deleted"
+  const polls = await PollMeta.find({ _id: { $in: pollIds }, status: { $ne: "deleted" } });
   // Attach reason, reporter, and date to each poll
   const pollsWithDetails = polls.map(p => {
     const report = reports.find(r => r._id.equals(p._id));
@@ -196,11 +198,16 @@ exports.getReportedOptions = async (req, res) => {
     { $group: { _id: "$option", reason: { $first: "$reason" }, reportedBy: { $first: "$user_email" }, reportedAt: { $first: "$created_at" } } }
   ]);
   const optionIds = reports.map(r => r._id);
-  const options = await Option.find({ _id: { $in: optionIds } });
-  // Fetch poll titles for each option
+  // Exclude options with status "deleted"
+  const options = await Option.find({ _id: { $in: optionIds }, status: { $ne: "deleted" } });
+  // Fetch poll IDs for each option
   const pollIdSet = new Set(options.map(o => o.poll.toString()));
-  const polls = await PollMeta.find({ _id: { $in: Array.from(pollIdSet) } });
-  const optionsWithDetails = options.map(o => {
+  // Exclude polls with status "deleted"
+  const polls = await PollMeta.find({ _id: { $in: Array.from(pollIdSet) }, status: { $ne: "deleted" } });
+  const validPollIds = new Set(polls.map(p => p._id.toString()));
+  // Exclude options whose poll is deleted
+  const filteredOptions = options.filter(o => validPollIds.has(o.poll.toString()));
+  const optionsWithDetails = filteredOptions.map(o => {
     const report = reports.find(r => r._id.equals(o._id));
     const poll = polls.find(p => p._id.equals(o.poll));
     return {
@@ -217,7 +224,9 @@ exports.getReportedOptions = async (req, res) => {
 // Mark poll as not an issue
 exports.markPollNotIssue = async (req, res) => {
   const PollMeta = require("../models/pollMeta");
+  const PollReport = require("../models/pollReport");
   await PollMeta.findByIdAndUpdate(req.params.id, { status: "active" });
+  await PollReport.deleteOne({ poll: req.params.id, user_email: req.body.user_email });
   res.json({ success: true });
 };
 
@@ -231,7 +240,9 @@ exports.markPollDeleted = async (req, res) => {
 // Mark option as not an issue
 exports.markOptionNotIssue = async (req, res) => {
   const Option = require("../models/option");
+  const OptionReport = require("../models/optionReport");
   await Option.findByIdAndUpdate(req.params.optionId, { status: "active" });
+  await OptionReport.deleteOne({ option: req.params.optionId, user_email: req.body.user_email });
   res.json({ success: true });
 };
 
@@ -240,4 +251,21 @@ exports.markOptionDeleted = async (req, res) => {
   const Option = require("../models/option");
   await Option.findByIdAndUpdate(req.params.optionId, { status: "deleted" });
   res.json({ success: true });
+};
+
+exports.getComments = async (req, res) => {
+    const comments = await Comment.find({ poll: req.params.id }).sort({ created_at: -1 });
+    res.json(comments);
+};
+
+exports.addComment = async (req, res) => {
+    const { text, user_email } = req.body;
+    const comment = new Comment({
+        poll: req.params.id,
+        text,
+        user_email,
+        created_at: new Date()
+    });
+    await comment.save();
+    res.json({ success: true });
 };

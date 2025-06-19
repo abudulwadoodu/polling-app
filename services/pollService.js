@@ -37,10 +37,10 @@ exports.updatePoll = async (id, data) => {
 };
 
 // Delete poll
-exports.deletePoll = async (id) => {
-  await Option.deleteMany({ poll: id });
-  return PollMeta.findByIdAndDelete(id);
-};
+// exports.deletePoll = async (id) => {
+//   await Option.deleteMany({ poll: id });
+//   return PollMeta.findByIdAndDelete(id);
+// };
 
 // Get options for a poll
 exports.getOptionsByPollId = async (pollId, sortBy = "name") => {
@@ -52,6 +52,11 @@ exports.getOptionsByPollId = async (pollId, sortBy = "name") => {
 
 // Add option to poll
 exports.addOptionToPoll = async (pollId, name, authorEmail) => {
+  // Check if option with the same name already exists for this poll
+  const exists = await Option.findOne({ poll: pollId, name, status: "active" });
+  if (exists) {
+    return { success: false, message: "Option already exists" };
+  }
   const option = new Option({ name, author_email: authorEmail, poll: pollId });
   await option.save();
   return { success: true, message: "Option added successfully" };
@@ -63,9 +68,9 @@ exports.updateOption = async (optionId, data) => {
 };
 
 // Delete option
-exports.deleteOption = async (optionId) => {
-  return Option.findByIdAndDelete(optionId);
-};
+// exports.deleteOption = async (optionId) => {
+//   return Option.findByIdAndDelete(optionId);
+// };
 
 // Save ratings for a poll
 exports.saveRatings = async (pollId, ratings, user_email) => {
