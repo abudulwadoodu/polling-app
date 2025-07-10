@@ -101,10 +101,34 @@ exports.getAllRatings = async (pollId, sortBy = "name") => {
     : { name: 1 };
   // Fetch all options with created_at and name, sorted accordingly
   const options = await Option.find({ poll: pollId, status: "active" }).sort(sortObj);
+
+  // Fetch all ratings for these options
+  const optionIds = options.map(option => option._id);
+  const Rating = require('../models/rating');
+  const ratingsDocs = await Rating.find({ poll: pollId, option: { $in: optionIds } });
+
+  // Group user emails by option name
+  const emailsByOption = {};
+  options.forEach(option => {
+    emailsByOption[option.name] = [];
+  });
+  ratingsDocs.forEach(rating => {
+    const option = options.find(o => o._id.equals(rating.option));
+    if (option) {
+      emailsByOption[option.name].push(rating.user_email);
+    }
+  });
+
   const totalRatings = {};
   options.forEach(option => {
     const avgRating = option.numberOfRatings === 0 ? 0 : Math.round((option.totalRatings / option.numberOfRatings) * 10) / 10;
-    totalRatings[option.name] = { total: option.totalRatings, count: option.numberOfRatings, avgRating, created_at: option.created_at };
+    totalRatings[option.name] = {
+      total: option.totalRatings,
+      count: option.numberOfRatings,
+      avgRating,
+      created_at: option.created_at,
+      user_emails: emailsByOption[option.name] || []
+    };
   });
   return totalRatings;
 };

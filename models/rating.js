@@ -1,3 +1,4 @@
+// Schema for storing user ratings for each poll option
 const mongoose = require('mongoose');
 
 const RatingSchema = new mongoose.Schema({

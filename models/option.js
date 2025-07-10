@@ -1,3 +1,4 @@
+// Option schema for poll choices
 const mongoose = require('mongoose');
 
 const OptionSchema = new mongoose.Schema({
